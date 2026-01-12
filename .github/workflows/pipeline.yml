@@ -63,10 +63,13 @@ jobs:
       - name: Build
         run: npm run build
   sonarqube:
-    needs: build
+    name: SonarQube
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: SonarQube placeholder
-        run: echo "SonarQube scan not configured yet"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
