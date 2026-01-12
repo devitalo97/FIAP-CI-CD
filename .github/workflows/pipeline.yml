@@ -55,8 +55,19 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-  build:
+  sonarqube:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  build:
+    needs: sonarqube
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -78,14 +89,18 @@ jobs:
           file: ./docker/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/fiap-ci-cd:latest
-  sonarqube:
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@v0.1.7
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
+          script: |
+            cd apps/fiap-ci-cd
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fiap-ci-cd:latest
+            docker compose up -d --force-recreate
