@@ -77,7 +77,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/fiap-ci-cd:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fiap-ci-cd:latest
   sonarqube:
     needs: build
     runs-on: ubuntu-latest
