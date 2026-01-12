@@ -101,7 +101,6 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_PORT }}
           script: |
-            sudo su
             cd apps/fiap-ci-cd
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fiap-ci-cd:latest
             docker compose up -d --force-recreate
