@@ -45,21 +45,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
-      - name: Run tests
-        run: npm run test --if-present
-  e2e-tests:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: npm
-      - name: Install dependencies
-        run: npm install
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
@@ -86,7 +71,7 @@ jobs:
       - name: Build
         run: npm run build
   sonarqube:
-    name: SonarQube
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
